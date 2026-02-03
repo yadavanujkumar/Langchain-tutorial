@@ -38,13 +38,42 @@ def get_current_time(input_text: str) -> str:
 def calculator(expression: str) -> str:
     """
     Tool to perform basic calculations.
+    Safely evaluates mathematical expressions using ast.
     """
+    import ast
+    import operator
+    
+    # Define safe operators
+    operators = {
+        ast.Add: operator.add,
+        ast.Sub: operator.sub,
+        ast.Mult: operator.mul,
+        ast.Div: operator.truediv,
+        ast.Pow: operator.pow,
+        ast.USub: operator.neg,
+    }
+    
+    def safe_eval(node):
+        """Safely evaluate an AST node."""
+        if isinstance(node, ast.Num):  # number
+            return node.n
+        elif isinstance(node, ast.BinOp):  # binary operation
+            left = safe_eval(node.left)
+            right = safe_eval(node.right)
+            return operators[type(node.op)](left, right)
+        elif isinstance(node, ast.UnaryOp):  # unary operation
+            operand = safe_eval(node.operand)
+            return operators[type(node.op)](operand)
+        else:
+            raise ValueError(f"Unsupported operation: {node}")
+    
     try:
-        # Using eval for simple math - in production, use a safer alternative
-        result = eval(expression, {"__builtins__": {}}, {})
+        # Parse the expression
+        tree = ast.parse(expression, mode='eval')
+        result = safe_eval(tree.body)
         return f"The result of {expression} is {result}"
-    except Exception as e:
-        return f"Error calculating '{expression}': {str(e)}"
+    except (SyntaxError, ValueError, TypeError, KeyError, ZeroDivisionError) as e:
+        return f"Error calculating '{expression}': {str(e)}. Only basic arithmetic operations (+, -, *, /, **) are supported."
 
 def word_counter(text: str) -> str:
     """
@@ -111,8 +140,9 @@ def main():
     # Get the ReAct prompt from the hub
     try:
         prompt = hub.pull("hwchase17/react")
-    except:
+    except (ImportError, ConnectionError, Exception) as e:
         # Fallback prompt if hub is unavailable
+        print(f"Note: Using fallback prompt (hub unavailable: {e})")
         template = """Answer the following questions as best you can. You have access to the following tools:
 
 {tools}
