@@ -13,6 +13,8 @@ LangChain is a framework designed to simplify the creation of applications using
 
 ## 🚀 Getting Started
 
+**New to LangChain?** Check out our [Quick Start Guide](QUICKSTART.md) for a fast setup!
+
 ### Prerequisites
 
 - Python 3.8 or higher
@@ -122,7 +124,7 @@ You can also use other LLM providers supported by LangChain (Anthropic, Cohere, 
 
 ## 🤝 Contributing
 
-Contributions are welcome! Feel free to:
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) to learn how you can help:
 - Report bugs
 - Suggest new examples
 - Improve documentation
